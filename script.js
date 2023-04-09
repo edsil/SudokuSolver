@@ -76,7 +76,9 @@ function selectNumber(e) {
   var previous = document.getElementById("n" + selectedNumber);
   previous.classList.remove("number-selected");
   e.target.classList.add("number-selected");
-  selectedNumber = e.target.innerText;
+  if (e.target.innerText == "cl") {selectedNumber = -1;
+} else    selectedNumber = e.target.innerText;
+  
 }
 
 function keyPress(e) {
