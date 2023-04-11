@@ -71,6 +71,7 @@ function createSolveButton() {
 
 function createNumbers() {
   for (var n = -1; n <= 9; n++) {
+    if (n == 0) continue;
     var numb = document.createElement("div");
     numb.id = "n" + n;
     numb.classList.add("number");
