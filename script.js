@@ -63,9 +63,9 @@ function createNumbers() {
     numb.classList.add("number");
     if (n == selectedNumber) numb.classList.add("number-selected");
     numb.style.left = gridLeft + "px";
-    numb.style.top = gridTop + (n + 1) * (cellSize + groupsDist) + "px";
-    numb.style.width = cellSize - cellDist + "px";
-    numb.style.height = cellSize - cellDist + "px";
+    numb.style.top = gridTop + Math.floor((n + 1) * (cellSize + groupsDist)*0.9*0.9) + "px";
+    numb.style.width = Math.floor((cellSize - cellDist)*0.9) + "px";
+    numb.style.height = Math.floor((cellSize - cellDist)*0.9) + "px";
     numb.innerText = n >= 0 ? n : "cl";
     numb.onclick = selectNumber;
     numbers.appendChild(numb);
