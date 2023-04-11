@@ -7,7 +7,7 @@ const gridTop = 10;
 const gridLeft = 10;
 
 // Dom Elements
-var grid, numbers;
+var grid, numbers, commands;
 
 // Other global variables
 var selectedNumber = 0;
@@ -16,9 +16,11 @@ const cells = [];
 window.onload = function () {
   grid = document.getElementById("grid");
   numbers = document.getElementById("numbers");
+  commands = document.getElementById("commands");
   createNumbers();
   createGrid();
   fillCells();
+  createSolveButton();
   document.addEventListener("keydown", keyPress);
 };
 
@@ -54,6 +56,17 @@ function createGrid() {
       grid.appendChild(group);
     }
   }
+}
+
+function createSolveButton() {
+  var solveBtn = document.createElement("button");
+  solveBtn.style.top = (gridTop + (cellSize + cellDist) * 9 + groupsDist * 3) + "px";
+  solveBtn.style.left = (gridLeft+cellSize) + "px";
+  solveBtn.style.width = ((cellSize + cellDist) *8 + groupsDist * 3) + "px";
+  solveBtn.innerText = "Solve";
+  solveBtn.onclick = solveAndDisplay;
+  solveBtn.classList.add("solveBtn");
+  commands.appendChild(solveBtn);
 }
 
 function createNumbers() {
@@ -110,13 +123,32 @@ function clickCell(e) {
   console.log(cells);
 }
 
+function solveAndDisplay() {
+  solver(cells);
+  for (var c = 0; c < 9; c++) {
+    for (var r = 0; r < 9; r++) {
+      var cid = "c" + c + "r" + r;
+      var cell = document.getElementById(cid);
+      if (cells[r][c] == -1) {
+        cell.innerText = "";
+        cell.classList.remove("cell-filled");
+      } else {
+        cell.innerText = cells[r][c];
+        cell.classList.add("cell-filled");
+
+      }
+      
+    }
+  }
+}
+
+
 
 function solver(a) {
     const sol = [];
     function solve(a) {
         init(a);
-        changed = true;
-        ct = 0;
+        var changed = true;
         while (changed) {
             changed = false;
             for (var i = 0; i < 9; i++) {
