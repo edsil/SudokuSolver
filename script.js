@@ -11,7 +11,25 @@ var grid, numbers, commands;
 
 // Other global variables
 var selectedNumber = 1;
-const cells = [];
+//const cells = [];
+// var cells = [[-1, -1, 5, 4, -1, -1, -1, 6, 9],
+// [4, -1, -1, -1, 7, -1, -1, -1, 3],
+// [-1, 9, -1, 5, -1, 8, 4, -1, -1],
+// [-1, -1, 1, 6, -1, -1, 3, 9, -1],
+// [6, -1, -1, -1, 5, -1, -1, -1, 8],
+// [-1, 4, 8, -1, -1, 7, 6, -1, -1],
+// [-1, -1, 4, 3, -1, 2, -1, 1, -1],
+// [1, -1, -1, -1, 4, -1, -1, -1, 5],
+// [2, 3, -1, -1, -1, 5, 9, -1, -1]];
+var cells = [[-1, 7, 3, 9, -1, -1, -1, 8, -1],
+[-1, -1, -1, -1, 5, -1, 1, -1, 6],
+[-1, 4, 5, -1, 3, 8, -1, -1, -1],
+[-1, -1, -1, 3, -1, 5, -1, 4, -1],
+[3, -1, -1, -1, -1, -1, -1, -1, 5],
+[-1, 5, -1, 6, -1, 9, -1, -1, -1],
+[-1, -1, -1, 2, 9, -1, 4, 1, -1],
+[2, -1, 9, -1, 6, -1, -1, -1, -1],
+[-1, 3, -1, -1, -1, 7, 6, 2, -1]];
 
 window.onload = function () {
     grid = document.getElementById("grid");
@@ -22,11 +40,14 @@ window.onload = function () {
     fillCells();
     createSolveButton();
     document.addEventListener("keydown", keyPress);
+    fromArrayToDisplay();
 };
 
 function fillCells() {
-    for (let i = 0; i < 9; i++) {
-        cells.push([-1, -1, -1, -1, -1, -1, -1, -1, -1]);
+    if (cells.length == 0) {
+        for (let i = 0; i < 9; i++) {
+            cells.push([-1, -1, -1, -1, -1, -1, -1, -1, -1]);
+        }
     }
 }
 
@@ -98,7 +119,7 @@ function selectNumber(e) {
 
 function keyPress(e) {
     var key = e.keyCode == 32 ? -1 : e.keyCode - 48;
-    if (key >= -1 && key <= 9) {
+    if (key >= 1 && key <= 9) {
         var previous = document.getElementById("n" + selectedNumber);
         previous.classList.remove("number-selected");
         var newSelected = document.getElementById("n" + key);
@@ -125,8 +146,7 @@ function clickCell(e) {
     //console.log(cells);
 }
 
-function solveAndDisplay() {
-    solver(cells);
+function fromArrayToDisplay() {
     for (var c = 0; c < 9; c++) {
         for (var r = 0; r < 9; r++) {
             var cid = "c" + c + "r" + r;
@@ -144,23 +164,51 @@ function solveAndDisplay() {
     }
 }
 
+function solveAndDisplay() {
+    solver(cells);
+    fromArrayToDisplay()
+}
+
+function showSol(s) {
+    console.log("-----");
+    console.log("-----");
+    for (var r = 0; r < 9; r++) {
+        var line = "";
+        for (var c = 0; c < 9; c++) {
+            var ce = [...s[r][c]].sort().join(".");
+            ce = ce.padEnd(17, "_");
+            line += ce;
+        }
+        console.log(line);
+    }
+}
 
 
 function solver(a) {
     const sol = [];
+    var run = 0;
     function solve(a) {
         init(a);
         var changed = true;
         while (changed) {
+            run++;
+            // console.log("Run: " + run);
+            // console.log("__________________________");
             changed = false;
             for (var i = 0; i < 9; i++) {
-                changed = changed || horizon(a, i);
-                changed = changed || vertica(a, i);
-                changed = changed || gridGroup(a, i);
-                changed = changed || twoInBedHor(a, i);
-                changed = changed || twoInBedVer(a, i);
-                changed = changed || twoInBedGrid(a, i);
+                changed = horizon(a, i) || changed;
+                changed = vertica(a, i) || changed;
+                changed = gridGroup(a, i) || changed;
+                changed = oneInRow(a, i) || changed;
+
+                changed = oneInCol(a, i) || changed;
+                changed = twoInBedHor(a, i) || changed;
+                changed = twoInBedVer(a, i) || changed;
+                changed = twoInBedGrid(a, i) || changed;
+                // showSol(sol);
+                // console.log("Run: " + run + "; i: " + i);
             }
+            fromArrayToDisplay();
         }
     }
 
@@ -169,7 +217,7 @@ function solver(a) {
             var row = [];
             for (var c = 0; c < 9; c++) {
                 var cell = new Set();
-                if (a[r][c] >= 0) {
+                if (a[r][c] > 0) {
                     cell.add(a[r][c]);
                 } else {
                     for (var i = 1; i < 10; i++) cell.add(i);
@@ -196,8 +244,67 @@ function solver(a) {
                     }
                 }
             }
+
         }
-        if (rerun) return changed || horizon(a, row);
+        if (rerun) return horizon(a, row) || changed;
+        return changed;
+    }
+
+    function oneInRow(a, row) {
+        var changed = false;
+        for (var i = 1; i < 10; i++) {
+            var pos = -1;
+            for (var j = 0; j < 9; j++) {
+                if (sol[row][j].has(i)) {
+                    if (sol[row][j].size == 1) {
+                        pos = 10;
+                        break;
+                    }
+                    else {
+                        if (pos == -1) pos = j;
+                        else {
+                            pos = 10;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (pos >= 0 && pos <= 9) {
+                a[row][pos] = i;
+                sol[row][pos].clear();
+                sol[row][pos].add(i);
+                changed = true;
+            };
+        }
+        return changed;
+    }
+
+    function oneInCol(a, col) {
+        var changed = false;
+        for (var i = 1; i < 10; i++) {
+            var pos = -1;
+            for (var j = 0; j < 9; j++) {
+                if (sol[j][col].has(i)) {
+                    if (sol[j][col].size == 1) {
+                        pos = 10;
+                        break;
+                    } else {
+
+                        if (pos == -1) pos = j;
+                        else {
+                            pos = 10;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (pos >= 0 && pos <= 9) {
+                a[pos][col] = i;
+                sol[pos][col].clear();
+                sol[pos][col].add(i);
+                changed = true;
+            };
+        }
         return changed;
     }
 
@@ -218,7 +325,7 @@ function solver(a) {
                 }
             }
         }
-        if (rerun) return changed || horizon(a, col);
+        if (rerun) return horizon(a, col) || changed;
         return changed;
     }
 
@@ -245,7 +352,7 @@ function solver(a) {
                 }
             }
         }
-        if (rerun) return changed || gridGroup(a, gg);
+        if (rerun) return gridGroup(a, gg) || changed;;
         return changed;
     }
 
@@ -281,7 +388,7 @@ function solver(a) {
                 }
             }
         }
-        if (rerun) return changed || twoInBedVer(a, col);
+        if (rerun) return twoInBedGrid(a, gg) || changed;
         return changed;
     }
 
@@ -307,7 +414,7 @@ function solver(a) {
                 }
             }
         }
-        if (rerun) return changed || twoInBedHor(a, row);
+        if (rerun) return twoInBedHor(a, row) || changed;;
         return changed;
     }
 
@@ -333,7 +440,7 @@ function solver(a) {
                 }
             }
         }
-        if (rerun) return changed || twoInBedVer(a, col);
+        if (rerun) return twoInBedVer(a, col) || changed;
         return changed;
     }
 
