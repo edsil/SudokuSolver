@@ -11,17 +11,17 @@ var grid, numbers, commands;
 
 // Other global variables
 var selectedNumber = 1;
-//const cells = [];
-// var cells = [[-1, -1, 5, 4, -1, -1, -1, 6, 9],
-// [4, -1, -1, -1, 7, -1, -1, -1, 3],
-// [-1, 9, -1, 5, -1, 8, 4, -1, -1],
-// [-1, -1, 1, 6, -1, -1, 3, 9, -1],
-// [6, -1, -1, -1, 5, -1, -1, -1, 8],
-// [-1, 4, 8, -1, -1, 7, 6, -1, -1],
-// [-1, -1, 4, 3, -1, 2, -1, 1, -1],
-// [1, -1, -1, -1, 4, -1, -1, -1, 5],
-// [2, 3, -1, -1, -1, 5, 9, -1, -1]];
-var cells = [[-1, 7, 3, 9, -1, -1, -1, 8, -1],
+var cells = [];
+var puzzle1 = [[-1, -1, 5, 4, -1, -1, -1, 6, 9],
+[4, -1, -1, -1, 7, -1, -1, -1, 3],
+[-1, 9, -1, 5, -1, 8, 4, -1, -1],
+[-1, -1, 1, 6, -1, -1, 3, 9, -1],
+[6, -1, -1, -1, 5, -1, -1, -1, 8],
+[-1, 4, 8, -1, -1, 7, 6, -1, -1],
+[-1, -1, 4, 3, -1, 2, -1, 1, -1],
+[1, -1, -1, -1, 4, -1, -1, -1, 5],
+[2, 3, -1, -1, -1, 5, 9, -1, -1]];
+var puzzle2 = [[-1, 7, 3, 9, -1, -1, -1, 8, -1],
 [-1, -1, -1, -1, 5, -1, 1, -1, 6],
 [-1, 4, 5, -1, 3, 8, -1, -1, -1],
 [-1, -1, -1, 3, -1, 5, -1, 4, -1],
@@ -39,6 +39,8 @@ window.onload = function () {
     createGrid();
     fillCells();
     createSolveButton();
+    createLoad1();
+    createLoad2();
     document.addEventListener("keydown", keyPress);
     fromArrayToDisplay();
 };
@@ -82,12 +84,46 @@ function createGrid() {
 function createSolveButton() {
     var solveBtn = document.createElement("button");
     solveBtn.style.top = (gridTop + (cellSize + cellDist) * 9 + groupsDist * 3) + "px";
-    solveBtn.style.left = (gridLeft + cellSize) + "px";
-    solveBtn.style.width = ((cellSize + cellDist) * 8 + groupsDist * 3) + "px";
+    solveBtn.style.left = (gridLeft) + "px";
+    solveBtn.style.width = ((cellSize + cellDist) * 3) + "px";
     solveBtn.innerText = "Solve";
     solveBtn.onclick = solveAndDisplay;
     solveBtn.classList.add("solveBtn");
     commands.appendChild(solveBtn);
+}
+
+function createLoad1() {
+    var loadBtn = document.createElement("button");
+    loadBtn.style.top = (gridTop + (cellSize + cellDist) * 9 + groupsDist * 3) + "px";
+    loadBtn.style.left = ((cellSize + cellDist) * 3 + groupsDist * 3) + "px";
+    loadBtn.style.width = ((cellSize + cellDist) * 2 + groupsDist * 1) + "px";
+    loadBtn.innerText = "Puzzle 1";
+    loadBtn.onclick = loadPuzzle1;
+    loadBtn.classList.add("loadBtn");
+    commands.appendChild(loadBtn);
+}
+
+function createLoad2() {
+    var loadBtn = document.createElement("button");
+    loadBtn.style.top = (gridTop + (cellSize + cellDist) * 9 + groupsDist * 3) + "px";
+    loadBtn.style.left = ((cellSize + cellDist) * 5 + groupsDist * 5) + "px";
+    loadBtn.style.width = ((cellSize + cellDist) * 2 + groupsDist * 1) + "px";
+    loadBtn.innerText = "Puzzle 2";
+    loadBtn.onclick = loadPuzzle2;
+    loadBtn.classList.add("loadBtn");
+    commands.appendChild(loadBtn);
+}
+
+function loadPuzzle1() {
+    cells = [];
+    puzzle1.forEach(c => cells.push([...c]));
+    fromArrayToDisplay();
+}
+
+function loadPuzzle2() {
+    cells = [];
+    puzzle2.forEach(c => cells.push([...c]));
+    fromArrayToDisplay();
 }
 
 function createNumbers() {
