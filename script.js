@@ -42,7 +42,7 @@ window.onload = function () {
     createLoad1();
     createLoad2();
     document.addEventListener("keydown", keyPress);
-    fromArrayToDisplay();
+    displayCellArray();
 };
 
 function fillCells() {
@@ -117,13 +117,13 @@ function createLoad2() {
 function loadPuzzle1() {
     cells = [];
     puzzle1.forEach(c => cells.push([...c]));
-    fromArrayToDisplay();
+    displayCellArray();
 }
 
 function loadPuzzle2() {
     cells = [];
     puzzle2.forEach(c => cells.push([...c]));
-    fromArrayToDisplay();
+    displayCellArray();
 }
 
 function createNumbers() {
@@ -182,11 +182,12 @@ function clickCell(e) {
     //console.log(cells);
 }
 
-function fromArrayToDisplay() {
+function displayCellArray() {
     for (var c = 0; c < 9; c++) {
         for (var r = 0; r < 9; r++) {
             var cid = "c" + c + "r" + r;
             var cell = document.getElementById(cid);
+            cell.classList.remove("cellSolver");
             if (cells[r][c] == -1) {
                 cell.innerText = "";
                 cell.classList.remove("cell-filled");
@@ -195,14 +196,31 @@ function fromArrayToDisplay() {
                 cell.classList.add("cell-filled");
 
             }
+        }
+    }
+}
 
+function displaySolArray(s) {
+    for (var c = 0; c < 9; c++) {
+        for (var r = 0; r < 9; r++) {
+            var cid = "c" + c + "r" + r;
+            var cell = document.getElementById(cid);
+            var txt = [...s[r][c]].join(" ");
+            cell.innerText = txt;
+            if (s[r][c].size == 1) {
+                cell.classList.remove("cellSolver");
+                cell.classList.add("cell-filled");
+            } else {
+                cell.classList.remove("cell-filled");
+                cell.classList.add("cellSolver");
+            }
         }
     }
 }
 
 function solveAndDisplay() {
     solver(cells);
-    fromArrayToDisplay()
+    displayCellArray()
 }
 
 function showSol(s) {
@@ -244,7 +262,8 @@ function solver(a) {
                 // showSol(sol);
                 // console.log("Run: " + run + "; i: " + i);
             }
-            fromArrayToDisplay();
+            displayCellArray();
+            displaySolArray(sol);
         }
     }
 
@@ -280,7 +299,6 @@ function solver(a) {
                     }
                 }
             }
-
         }
         if (rerun) return horizon(a, row) || changed;
         return changed;
@@ -292,17 +310,11 @@ function solver(a) {
             var pos = -1;
             for (var j = 0; j < 9; j++) {
                 if (sol[row][j].has(i)) {
-                    if (sol[row][j].size == 1) {
+                    if (sol[row][j].size == 1 || pos !== -1) {
                         pos = 10;
                         break;
                     }
-                    else {
-                        if (pos == -1) pos = j;
-                        else {
-                            pos = 10;
-                            break;
-                        }
-                    }
+                    pos = j;
                 }
             }
             if (pos >= 0 && pos <= 9) {
@@ -321,17 +333,11 @@ function solver(a) {
             var pos = -1;
             for (var j = 0; j < 9; j++) {
                 if (sol[j][col].has(i)) {
-                    if (sol[j][col].size == 1) {
+                    if (sol[j][col].size == 1 || pos !== -1) {
                         pos = 10;
                         break;
-                    } else {
-
-                        if (pos == -1) pos = j;
-                        else {
-                            pos = 10;
-                            break;
-                        }
                     }
+                    pos = j;
                 }
             }
             if (pos >= 0 && pos <= 9) {

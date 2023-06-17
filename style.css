@@ -19,6 +19,11 @@ body {
   text-align: center;
 }
 
+.cellSolver {
+  font-size: 0.5em;
+  word-wrap: break-word;
+}
+
 .cell:hover {
   background-color: rgb(255, 255, 255);
 }
