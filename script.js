@@ -12,6 +12,7 @@ var grid, numbers, commands;
 // Other global variables
 var selectedNumber = 1;
 var cells = [];
+var sol = [];
 var puzzle1 = [[-1, -1, 5, 4, -1, -1, -1, 6, 9],
 [4, -1, -1, -1, 7, -1, -1, -1, 3],
 [-1, 9, -1, 5, -1, 8, 4, -1, -1],
@@ -31,6 +32,33 @@ var puzzle2 = [[-1, 7, 3, 9, -1, -1, -1, 8, -1],
 [2, -1, 9, -1, 6, -1, -1, -1, -1],
 [-1, 3, -1, -1, -1, 7, 6, 2, -1]];
 
+var puzzles = [[[-1, -1, 5, 4, -1, -1, -1, 6, 9],
+[4, -1, -1, -1, 7, -1, -1, -1, 3],
+[-1, 9, -1, 5, -1, 8, 4, -1, -1],
+[-1, -1, 1, 6, -1, -1, 3, 9, -1],
+[6, -1, -1, -1, 5, -1, -1, -1, 8],
+[-1, 4, 8, -1, -1, 7, 6, -1, -1],
+[-1, -1, 4, 3, -1, 2, -1, 1, -1],
+[1, -1, -1, -1, 4, -1, -1, -1, 5],
+[2, 3, -1, -1, -1, 5, 9, -1, -1]], [[-1, 7, 3, 9, -1, -1, -1, 8, -1],
+[-1, -1, -1, -1, 5, -1, 1, -1, 6],
+[-1, 4, 5, -1, 3, 8, -1, -1, -1],
+[-1, -1, -1, 3, -1, 5, -1, 4, -1],
+[3, -1, -1, -1, -1, -1, -1, -1, 5],
+[-1, 5, -1, 6, -1, 9, -1, -1, -1],
+[-1, -1, -1, 2, 9, -1, 4, 1, -1],
+[2, -1, 9, -1, 6, -1, -1, -1, -1],
+[-1, 3, -1, -1, -1, 7, 6, 2, -1]],
+[[-1, -1, 5, -1, 6, 8, 7, -1, -1],
+[4, -1, -1, -1, -1, 9, -1, 6, 5],
+[8, 7, -1, -1, -1, 5, -1, -1, 3],
+[-1, 6, 9, 1, -1, -1, -1, -1, -1],
+[-1, 8, -1, -1, 5, -1, -1, 2, -1],
+[-1, -1, -1, -1, -1, 2, 1, 8, -1],
+[6, -1, -1, 8, -1, -1, -1, 9, 7],
+[1, 2, -1, 9, -1, -1, -1, -1, 8],
+[-1, -1, 8, 5, 2, -1, 6, -1, -1]]];
+
 window.onload = function () {
     grid = document.getElementById("grid");
     numbers = document.getElementById("numbers");
@@ -39,8 +67,7 @@ window.onload = function () {
     createGrid();
     fillCells();
     createSolveButton();
-    createLoad1();
-    createLoad2();
+    createLoadPuzzles();
     document.addEventListener("keydown", keyPress);
     displayCellArray();
 };
@@ -92,37 +119,42 @@ function createSolveButton() {
     commands.appendChild(solveBtn);
 }
 
-function createLoad1() {
-    var loadBtn = document.createElement("button");
-    loadBtn.style.top = (gridTop + (cellSize + cellDist) * 9 + groupsDist * 3) + "px";
-    loadBtn.style.left = ((cellSize + cellDist) * 3 + groupsDist * 3) + "px";
-    loadBtn.style.width = ((cellSize + cellDist) * 2 + groupsDist * 1) + "px";
-    loadBtn.innerText = "Puzzle 1";
-    loadBtn.onclick = loadPuzzle1;
-    loadBtn.classList.add("loadBtn");
-    commands.appendChild(loadBtn);
+function createLoadPuzzles() {
+    var selection = document.createElement("select");
+    selection.id = "selection";
+    selection.onchange = loadPuzzle;
+    selection.style.top = (gridTop + (cellSize + cellDist) * 9 + groupsDist * 3) + "px";
+    selection.style.left = ((cellSize + cellDist) * 3 + groupsDist * 3) + "px";
+    selection.style.width = ((cellSize + cellDist) * 4 + groupsDist * 3) + "px";
+    selection.classList.add("loadBtn");
+    var option = document.createElement("option");
+    option.value = -1;
+    option.innerText = "Select Puzzle";
+    selection.appendChild(option);
+    for (var i = 0; i < puzzles.length; i++) {
+        var option = document.createElement("option");
+        option.value = i;
+        option.innerText = "Puzzle " + (i + 1);
+        selection.appendChild(option);
+    }
+    var option = document.createElement("option");
+    option.value = -2;
+    option.innerText = "Clear Puzzle";
+    selection.appendChild(option);
+    commands.appendChild(selection);
 }
 
-function createLoad2() {
-    var loadBtn = document.createElement("button");
-    loadBtn.style.top = (gridTop + (cellSize + cellDist) * 9 + groupsDist * 3) + "px";
-    loadBtn.style.left = ((cellSize + cellDist) * 5 + groupsDist * 5) + "px";
-    loadBtn.style.width = ((cellSize + cellDist) * 2 + groupsDist * 1) + "px";
-    loadBtn.innerText = "Puzzle 2";
-    loadBtn.onclick = loadPuzzle2;
-    loadBtn.classList.add("loadBtn");
-    commands.appendChild(loadBtn);
-}
-
-function loadPuzzle1() {
+function loadPuzzle() {
+    var index = document.getElementById("selection").value;
+    if (index == -1) return;
+    if (index == -2) {
+        cells = [];
+        fillCells();
+        displayCellArray();
+        return;
+    }
     cells = [];
-    puzzle1.forEach(c => cells.push([...c]));
-    displayCellArray();
-}
-
-function loadPuzzle2() {
-    cells = [];
-    puzzle2.forEach(c => cells.push([...c]));
+    puzzles[index].forEach(c => cells.push([...c]));
     displayCellArray();
 }
 
@@ -239,7 +271,7 @@ function showSol(s) {
 
 
 function solver(a) {
-    const sol = [];
+    sol = [];
     var run = 0;
     function solve(a) {
         init(a);
